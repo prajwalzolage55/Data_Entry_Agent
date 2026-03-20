@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DataEntry Agent — AI Document Extraction</title>
+  <link rel="icon" href="data:,"/>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"/>
+</head>
+<body>
+
+  <div class="ambient" aria-hidden="true">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+  </div>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-inner">
+      <a href="/" class="brand">
+        <div class="brand-icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        </div>
+        DataEntry <strong>Agent</strong>
+      </a>
+      <div class="header-chips">
+        <span class="chip chip--live"><span class="dot"></span>Groq AI</span>
+        <span class="chip">v2.0</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Alerts -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="alerts">
+        {% for cat, msg in messages %}
+          <div class="alert alert--{{ cat }}">
+            <svg class="alert-ico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              {% if cat == 'error' %}<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+              {% else %}<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>{% endif %}
+            </svg>
+            <span>{{ msg }}</span>
+            <button class="alert-close" onclick="this.parentElement.remove()">✕</button>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  <!-- Main -->
+  <main class="main">
+
+    <section class="hero">
+      <div class="eyebrow"><span class="eyebrow-star">✦</span> AI-POWERED DATA EXTRACTION</div>
+      <h1>Transform any document into<br/><span class="grad">structured data</span></h1>
+      <p class="hero-sub">Upload invoices, forms, tables, receipts, or ID cards.<br class="br-hide"/> Get a clean Excel file in seconds.</p>
+    </section>
+
+    <div class="card">
+      <form id="form" action="/upload" method="POST" enctype="multipart/form-data">
+
+        <div class="dropzone" id="dropzone">
+          <input type="file" name="document" id="fileInput" accept=".pdf,.jpg,.jpeg,.png" required/>
+
+          <div id="dzIdle">
+            <div class="dz-upload-icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            </div>
+            <p class="dz-title">Drop your file here</p>
+            <p class="dz-hint">or <span class="dz-browse">click to browse</span></p>
+            <div class="dz-tags">
+              <span>PDF</span><span>JPG</span><span>JPEG</span><span>PNG</span><span class="dz-sep">·</span><span>Max 100 MB</span>
+            </div>
+          </div>
+
+          <div id="dzFile" style="display:none" class="dz-file-row">
+            <span class="dz-file-emoji" id="dzEmoji">📄</span>
+            <div class="dz-file-meta">
+              <span class="dz-fname" id="dzName"></span>
+              <span class="dz-fsize" id="dzSize"></span>
+            </div>
+            <button type="button" id="dzClear" class="dz-clear-btn" aria-label="Remove">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-submit" id="btnSubmit" disabled>
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          Extract &amp; Export to Excel
+          <span class="btn-arrow">→</span>
+        </button>
+
+      </form>
+    </div>
+
+    <!-- Steps -->
+    <div class="steps-wrap">
+      <p class="steps-eyebrow">HOW IT WORKS</p>
+      <div class="steps">
+        <div class="step">
+          <div class="step-badge">01</div>
+          <div class="step-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+          <h3>Upload</h3>
+          <p>Any PDF or image document from your device</p>
+        </div>
+        <div class="step-arrow">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+        <div class="step">
+          <div class="step-badge">02</div>
+          <div class="step-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
+          <h3>AI Extracts</h3>
+          <p>Groq AI reads and identifies all fields</p>
+        </div>
+        <div class="step-arrow">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+        <div class="step">
+          <div class="step-badge">03</div>
+          <div class="step-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
+          <h3>Download</h3>
+          <p>Beautifully styled Excel spreadsheet</p>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="dev-card">
+        <div class="dev-avatar">PZ</div>
+        <div class="dev-info">
+          <span class="dev-label">BUILT BY</span>
+          <span class="dev-name">Prajwal Zolage</span>
+          <span class="dev-role">AI&DS Student</span>
+        </div>
+        <div class="dev-socials">
+          <a href="https://github.com/prajwalzolage55" target="_blank" rel="noopener" class="social-btn" aria-label="GitHub">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+            GitHub
+          </a>
+          <a href="https://www.linkedin.com/in/prajwal-zolage-82ab10347" target="_blank" rel="noopener" class="social-btn" aria-label="LinkedIn">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+            LinkedIn
+          </a>
+          <a href="https://portfolio-r7ct-seven.vercel.app" target="_blank" rel="noopener" class="social-btn" aria-label="Portfolio">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            Portfolio
+          </a>
+        </div>
+      </div>
+      <p class="footer-copy">© 2026 All rights reserved</p>
+    </div>
+  </footer>
+
+  <!-- Loading overlay -->
+  <div class="overlay" id="overlay" style="display:none">
+    <div class="overlay-box">
+      <div class="rings">
+        <div class="ring r1"></div>
+        <div class="ring r2"></div>
+        <div class="ring r3"></div>
+        <div class="ring-core">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        </div>
+      </div>
+      <p class="overlay-title">Processing document…</p>
+      <p class="overlay-sub" id="overlayMsg">Sending to Groq AI</p>
+      <div class="overlay-bar-wrap"><div class="overlay-bar" id="overlayBar"></div></div>
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
